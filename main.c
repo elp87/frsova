@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <gmp.h>
+#include <gosthash.h>
 
 int main(void)
 {    
@@ -29,8 +30,8 @@ int main(void)
     mpz_init_set_str(yq,"37C7 C90C D40B 0F56 21DC 3AC1 B751 CFA0 E263 4FA0 503B 3D52 639F 5D7F B72A FD61"
                         "EA19 9441 D943 FFE7 F0C7 0A27 59A3 CDB8 4C11 4E1F 9339 FDF2 7F35 ECA9 3677 BEEC", 16);
     gmp_printf("%Zd\n", yq);
+
+    gost_hash_ctx ctx;
+    init_gost_hash_ctx(ctx);
     return 0;
 }
-
-
-
