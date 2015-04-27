@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <gmp.h>
-#include <gosthash.h>
+#include <stdint.h>
+#include <stribog.h>
 
 int main(void)
 {    
@@ -29,9 +30,31 @@ int main(void)
                         "5A51 5856 D133 14AF 69BC 5B92 4C8B 4DDF F75C 4541 5C1D 9DD9 DD33 612C D530 EFE1", 16);
     mpz_init_set_str(yq,"37C7 C90C D40B 0F56 21DC 3AC1 B751 CFA0 E263 4FA0 503B 3D52 639F 5D7F B72A FD61"
                         "EA19 9441 D943 FFE7 F0C7 0A27 59A3 CDB8 4C11 4E1F 9339 FDF2 7F35 ECA9 3677 BEEC", 16);
-    gmp_printf("%Zd\n", yq);
+    gmp_printf("%Zd\n\n", yq);
+        
+    uint8_t message[8] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
 
-    gost_hash_ctx ctx;
-    init_gost_hash_ctx(ctx);
+    /* Берем хэш от сообщения message */
+    char *h512 = get_hash512(message);
+    printf("Хэш - %s\n", h512);
+
+    mpz_t hash_mpz;
+    mpz_init_set_str(hash_mpz, h512, 16);
+    gmp_printf("Десятичное представление хэша - %Zd\n\n", hash_mpz);
+
+    /* e = z % q ,
+       где z - десятичное представление хэша (hash_mpz) */
+    mpz_t e;
+    mpz_init(e);
+    mpz_mod(e, hash_mpz, q);
+
+    mpz_t zero_mpz;
+    mpz_init_set_d(zero_mpz, 0);
+
+    if (mpz_cmp(e, zero_mpz) == 0)
+        mpz_init_set_d(e, 1);
+
+    gmp_printf("e = %Zd\n", e);
+
     return 0;
 }
