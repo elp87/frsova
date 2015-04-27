@@ -5,6 +5,14 @@
 
 int main(void)
 {    
+    /* Определение стандартных значений */
+    mpz_t zero_mpz;
+    mpz_init_set_d(zero_mpz, 0);
+
+    mpz_t one_mpz;
+    mpz_init_set_d(one_mpz, 1);
+
+    /* ------------- */
     mpz_t p;
     int a;
     mpz_t b;
@@ -48,13 +56,29 @@ int main(void)
     mpz_init(e);
     mpz_mod(e, hash_mpz, q);
 
-    mpz_t zero_mpz;
-    mpz_init_set_d(zero_mpz, 0);
-
     if (mpz_cmp(e, zero_mpz) == 0)
         mpz_init_set_d(e, 1);
 
-    gmp_printf("e = %Zd\n", e);
+    gmp_printf("e = %Zd\n\n", e);
+
+    /* k - случайное. 0 < k < q
+       Генерируем число от 0 до (q - 2). Прибавляем 1 и получаем случайное от 1 до (q - 1) включительно*/
+    mpz_t k;
+    mpz_init(k);
+    gmp_randstate_t randstate;
+    gmp_randinit_default(randstate);
+
+    mpz_urandomm(k, randstate, q - 2);
+    mpz_add(k, k, one_mpz);
+    gmp_printf("k = %Zd\n\n", k);
+
+    /* r = xC % q , где
+       С = k * p,
+       если r = 0, вернуться к расчету k*/
+    mpz_t C;
+    mpz_init(C);
+    mpz_mul(C, k, p);
+    gmp_printf("C = %Zd\n\n", C);
 
     return 0;
 }
