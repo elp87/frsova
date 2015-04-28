@@ -66,9 +66,83 @@ void calc_wiki_example()
         printf("Проверка пройдена\n");
 }
 
+int is_simple(mpz_ptr a)
+{
+    mpz_t zero_mpz, two_mpz;
+    mpz_init_set_ui(zero_mpz, 0);
+    mpz_init_set_ui(two_mpz, 2);
+
+    mpz_t half_a, half_a1;
+    mpz_init(half_a);
+    mpz_init(half_a1);
+
+    mpz_div(half_a, a, two_mpz);
+    mpz_add_ui(half_a1, half_a, 1);
+
+    mpz_t mod_result;
+    mpz_init(mod_result);
+    mpz_mod(mod_result, a, two_mpz);
+
+    if (mpz_cmp(mod_result, zero_mpz) == 0)
+    {
+        printf(" - не простое - делится на 2\n");
+        return 0;
+    }
+
+    mpz_t counter;
+    for(mpz_init_set_d(counter, 3);
+        mpz_cmp(half_a1, counter) >= 0;
+        mpz_add(counter, counter, two_mpz))
+    {
+        mpz_mod(mod_result, a, counter);
+        if (mpz_cmp(mod_result, zero_mpz) == 0)
+        {
+            gmp_printf(" - не простое - делится на %Zd\n", counter);
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
 int main(void)
 {
     calc_wiki_example();
+
+    mpz_t p_min, p_max, p, q;
+    mpz_t two_mpz;
+    mpz_init(p_min);
+    mpz_init(p_max);
+    mpz_init(p);
+    mpz_init(q);
+    mpz_init_set_ui(two_mpz, 2);
+    mpz_pow_ui(p_min, two_mpz, 16);
+    mpz_pow_ui(p_max, two_mpz, 32);
+    gmp_randstate_t randstate;
+    gmp_randinit_default(randstate);
+
+    do
+    {
+        mpz_urandomm(p, randstate, p_max);
+        mpz_add(p, p, p_min);
+        gmp_printf("Проверка %Zd\n", p);
+    }
+    while(is_simple(p) == 0);
+    gmp_printf("\nНайдено простое p - %Zd\n\n", p);
+
+    do
+    {
+        do
+        {
+            mpz_urandomm(q, randstate, p_max);
+            mpz_add(q, q, p_min);
+            gmp_printf("Проверка %Zd\n", q);
+        }
+        while(is_simple(q) == 0);
+
+    }
+    while(mpz_cmp(p,q) == 0); /* Повторяем поиск, если p == q */
+    gmp_printf("\nНайдено простое q - %Zd\n\n", q);
 
     return 0;
 }
