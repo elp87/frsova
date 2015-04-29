@@ -7,5 +7,9 @@ LIBS+= -L/usr/lib -lgmp
 
 SOURCES += main.c
 
+
 INCLUDEPATH += $$PWD/../build-stribog-Desktop-Debug
 DEPENDPATH += $$PWD/../build-stribog-Desktop-Debug
+
+HEADERS += \
+    data.h
