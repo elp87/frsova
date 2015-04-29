@@ -45,20 +45,17 @@ void fsh_data_calc_x(struct fsh_data_t *data)
 
 void fsh_data_calc_y(struct fsh_data_t *data, int e)
 {
-    mpz_t y;
-    mpz_init(y);
+    mpz_init(data->y);
     if (e == 0)
     {
-        mpz_init_set(data->y, data->r);
+        mpz_set(data->y, data->r);
     }
     else
     {
-        mpz_t y, rs;
-        mpz_init(y);
+        mpz_t rs;
         mpz_init(rs);
         mpz_mul(rs, data->r, data->s);
-        mpz_mod(y, rs, data->n);
-        mpz_init_set(data->y, y);
+        mpz_mod(data->y, rs, data->n);
     }
 }
 

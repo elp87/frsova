@@ -5,22 +5,15 @@
 
 void calc_data(struct fsh_data_t *data)
 {
-    /* Инициализируем стандартные значения */
-    mpz_t two_mpz;
-    mpz_init_set_d(two_mpz, 2);
-
     fsh_data_calc_n(data);
     gmp_printf("n = %Zd\n\n", data->n);
 
-    /* Инициализируем s. Считаем v */
     fsh_data_calc_v(data);
     gmp_printf("v = %Zd\n\n", data->v);
 
-    /* Инициализируем r. Cчитаем x */
     fsh_data_calc_x(data);
     gmp_printf("x = %Zd\n\n", data->x);
 
-    /* Отправляем 1 */
     int e = 0;
     fsh_data_calc_y(data, e);
     gmp_printf("y = %Zd\n\n", data->y);
@@ -38,13 +31,12 @@ void calc_data(struct fsh_data_t *data)
 
     if (mpz_cmp(l_side, r_side) == 0)
         printf("Проверка пройдена\n\n");
+    else
+        printf("Проверка не пройдена\n\n");
 }
 
 void calc_wiki_example()
 {
-
-    /* Инициализируем p, q. Считаем n */
-
     struct fsh_data_t data;
 
     mpz_t p, q, s, r;
