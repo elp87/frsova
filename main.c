@@ -5,8 +5,6 @@
 
 void calc_data(struct fsh_data_t *data)
 {
-    fsh_data_calc_n(data);
-    gmp_printf("n = %Zd\n\n", data->n);
 
     fsh_data_calc_v(data);
     gmp_printf("v = %Zd\n\n", data->v);
@@ -44,84 +42,69 @@ void calc_wiki_example()
     mpz_init_set_d(q, 811);
     mpz_init_set_d(s, 43215);
     mpz_init_set_d(r, 38177);
-    fsh_data_init(&data, p , q, s, r);
+    fsh_data_init(&data, p , q);
+
+    fsh_data_calc_n(&data);
+    gmp_printf("n = %Zd\n\n", data.n);
+
+    fsh_data_init_s(&data, s);
+    fsh_data_init_r(&data, r);
 
     calc_data(&data);
 }
 
-int is_simple(mpz_ptr a)
+void calc_rand_example()
 {
-    mpz_t zero_mpz, two_mpz;
-    mpz_init_set_ui(zero_mpz, 0);
-    mpz_init_set_ui(two_mpz, 2);
+    struct fsh_data_t data;
 
-    mpz_t sqrt_a, sqrt_a1;
-    mpz_init(sqrt_a);
-    mpz_init(sqrt_a1);
-
-    mpz_sqrt(sqrt_a, a);
-    mpz_add_ui(sqrt_a1, sqrt_a, 1);
-
-    mpz_t mod_result;
-    mpz_init(mod_result);
-    mpz_mod(mod_result, a, two_mpz);
-
-    if (mpz_cmp(mod_result, zero_mpz) == 0)
-    {
-        return 0;
-    }
-
-    mpz_t counter;
-    for(mpz_init_set_d(counter, 3);
-        mpz_cmp(sqrt_a1, counter) >= 0;
-        mpz_add(counter, counter, two_mpz))
-    {
-        mpz_mod(mod_result, a, counter);
-        if (mpz_cmp(mod_result, zero_mpz) == 0)
-        {
-            return 0;
-        }
-    }
-
-    return 1;
-}
-
-int main(void)
-{
-    calc_wiki_example();
-
-    mpz_t p_min, p_max, p, q;
+    mpz_t p, q;
+    mpz_t p_min, p_max;
     mpz_t two_mpz;
-    mpz_init(p_min);
-    mpz_init(p_max);
     mpz_init(p);
     mpz_init(q);
-    mpz_init_set_ui(two_mpz, 2);
-    mpz_pow_ui(p_min, two_mpz, 16);
-    mpz_pow_ui(p_max, two_mpz, 32);
+    mpz_init(p_min);
+    mpz_init(p_max);
+    mpz_init_set_d(two_mpz, 2);
+
+    mpz_pow_ui(p_min, two_mpz, 128);
+    mpz_pow_ui(p_max, two_mpz, 256);
     gmp_randstate_t randstate;
     gmp_randinit_default(randstate);
 
-    do
-    {
-        mpz_urandomm(p, randstate, p_max);
-        mpz_add(p, p, p_min);
-    }
-    while(is_simple(p) == 0);
-    gmp_printf("\nНайдено простое p - %Zd\n\n", p);
+    mpz_urandomm(p, randstate, p_max);
+    mpz_add(p, p, p_min);
+    mpz_nextprime(p, p);
+    gmp_printf("Найдено простое p - %Zd\n", p);
 
     do
     {
-        do
-        {
-            mpz_urandomm(q, randstate, p_max);
-            mpz_add(q, q, p_min);
-        }
-        while(is_simple(q) == 0);
-
+        mpz_urandomm(q, randstate, p_max);
+        mpz_add(q, q, p_min);
+        mpz_nextprime(q, q);
     }
     while(mpz_cmp(p,q) == 0); /* Повторяем поиск, если p == q */
-    gmp_printf("\nНайдено простое q - %Zd\n\n", q);
+    gmp_printf("Найдено простое q - %Zd\n", q);
+
+    fsh_data_init(&data, p , q);
+
+    fsh_data_calc_n(&data);
+    gmp_printf("n = %Zd\n\n", data.n);
+
+    fsh_data_calc_s(&data, data.n, randstate);
+    gmp_printf("s = %Zd\n\n", data.s);
+
+    fsh_data_calc_r(&data, data.n, randstate);
+    gmp_printf("r = %Zd\n\n", data.r);
+
+    calc_data(&data);
+}
+
+
+int main(void)
+{
+    calc_wiki_example();    
+
+    calc_rand_example();
 
     return 0;
 }
