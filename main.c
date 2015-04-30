@@ -12,11 +12,11 @@ void calc_data(struct fsh_data_t *data)
     fsh_data_calc_x(data);
     gmp_printf("x = %Zd\n\n", data->x);
 
+    /* Проверка e = 0 */
     int e = 0;
     fsh_data_calc_y(data, e);
     gmp_printf("y = %Zd\n\n", data->y);
 
-    /* Проверка */
     mpz_t l_side, r_side;
     mpz_init(l_side);
     mpz_init(r_side);
@@ -28,6 +28,26 @@ void calc_data(struct fsh_data_t *data)
     gmp_printf("right side = %Zd\n", r_side);
 
     if (mpz_cmp(l_side, r_side) == 0)
+        printf("Проверка пройдена\n\n");
+    else
+        printf("Проверка не пройдена\n\n");
+
+    /* Проверка е = 1 */
+    e = 1;
+    fsh_data_calc_y(data, e);
+    gmp_printf("y = %Zd\n\n", data->y);
+
+    mpz_t l_side1, r_side1;
+    mpz_init(l_side1);
+    mpz_init(r_side1);
+
+    fsh_data_check_left_side(l_side1, data);
+    fsh_data_check_right_side(r_side1, data, e);
+
+    gmp_printf("left side = %Zd\n", l_side);
+    gmp_printf("right side = %Zd\n", r_side);
+
+    if (mpz_cmp(l_side1, r_side1) == 0)
         printf("Проверка пройдена\n\n");
     else
         printf("Проверка не пройдена\n\n");
@@ -102,8 +122,10 @@ void calc_rand_example()
 
 int main(void)
 {
+    printf("Проверка примера по wiki\n");
     calc_wiki_example();    
 
+    printf("Проверка на случайных числах\n");
     calc_rand_example();
 
     return 0;

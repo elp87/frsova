@@ -104,42 +104,4 @@ void fsh_data_check_right_side(mpz_ptr right_side, struct fsh_data_t *data, int 
     mpz_mul(xve, data->x, ve);
     mpz_mod(right_side, xve, data->n);
 }
-
-int is_simple(mpz_ptr a)
-{
-    mpz_t zero_mpz, two_mpz;
-    mpz_init_set_ui(zero_mpz, 0);
-    mpz_init_set_ui(two_mpz, 2);
-
-    mpz_t sqrt_a, sqrt_a1;
-    mpz_init(sqrt_a);
-    mpz_init(sqrt_a1);
-
-    mpz_sqrt(sqrt_a, a);
-    mpz_add_ui(sqrt_a1, sqrt_a, 1);
-
-    mpz_t mod_result;
-    mpz_init(mod_result);
-    mpz_mod(mod_result, a, two_mpz);
-
-    if (mpz_cmp(mod_result, zero_mpz) == 0)
-    {
-        return 0;
-    }
-
-    mpz_t counter;
-    for(mpz_init_set_d(counter, 3);
-        mpz_cmp(sqrt_a1, counter) >= 0;
-        mpz_add(counter, counter, two_mpz))
-    {
-        mpz_mod(mod_result, a, counter);
-        if (mpz_cmp(mod_result, zero_mpz) == 0)
-        {
-            return 0;
-        }
-    }
-
-    return 1;
-}
-
 #endif // DATA_H
