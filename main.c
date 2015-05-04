@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <gmp.h>
 #include <stdint.h>
+#include <time.h>
 #include <data.h>
 
 void calc_data(struct fsh_data_t *data)
@@ -90,6 +91,9 @@ void calc_rand_example()
     mpz_pow_ui(p_max, two_mpz, 256);
     gmp_randstate_t randstate;
     gmp_randinit_default(randstate);
+
+    time_t t1 = time(NULL);
+    gmp_randseed_ui(randstate, t1);
 
     mpz_urandomm(p, randstate, p_max);
     mpz_add(p, p, p_min);
