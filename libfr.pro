@@ -5,11 +5,13 @@ CONFIG -= qt
 LIBS += -lgmp
 LIBS+= -L/usr/lib -lgmp
 
-SOURCES += main.c
+SOURCES += main.c \
+    LibSha1.c
 
 
 INCLUDEPATH += $$PWD/../build-stribog-Desktop-Debug
 DEPENDPATH += $$PWD/../build-stribog-Desktop-Debug
 
 HEADERS += \
-    data.h
+    data.h \
+    LibSha1.h

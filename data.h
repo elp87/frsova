@@ -4,11 +4,14 @@
 #include <gmp.h>
 
 struct fsh_data_t {
-    mpz_t p, q, s, r;
-    mpz_t n, v, x, y;
+    mpz_t p, q, r;
+    mpz_t n, x, y;
 
     mpz_t _two_mpz;
+    mpz_t _m_two_mpz;
 
+    mpz_t s[8];
+    mpz_t v[8];
 };
 
 void fsh_data_init(struct fsh_data_t *data,
@@ -19,6 +22,7 @@ void fsh_data_init(struct fsh_data_t *data,
     mpz_init_set(data->q, q);    
 
     mpz_init_set_d(data->_two_mpz, 2);
+    mpz_init_set_d(data->_m_two_mpz, -2);
 }
 
 
@@ -28,21 +32,21 @@ void fsh_data_calc_n(struct fsh_data_t *data)
     mpz_mul(data->n, data->p, data->q);
 }
 
-void fsh_data_init_s(struct fsh_data_t *data, mpz_ptr s)
-{
-    mpz_init_set(data->s, s);
-}
-
 void fsh_data_calc_s(struct fsh_data_t *data, mpz_ptr n, gmp_randstate_t randstate)
 {
-    mpz_init(data->s);
+    uint8_t i=0;
 
-    do
+    for (i = 0; i < 8; i++)
     {
-        mpz_urandomm(data->s, randstate, n);
-        mpz_nextprime(data->s, data->s);
+        mpz_init(data->s[i]);
+
+        do
+        {
+            mpz_urandomm(data->s[i], randstate, n);
+            mpz_nextprime(data->s[i], data->s[i]);
+        }
+        while(mpz_cmp(data->n, data->s[i]) < 1);
     }
-    while(mpz_cmp(data->n, data->s) < 1);
 }
 
 void fsh_data_calc_r(struct fsh_data_t *data, mpz_ptr n, gmp_randstate_t randstate)
@@ -64,8 +68,12 @@ void fsh_data_init_r(struct fsh_data_t *data, mpz_ptr r)
 
 void fsh_data_calc_v(struct fsh_data_t *data)
 {
-    mpz_init(data->v);
-    mpz_powm(data->v, data->s, data->_two_mpz, data->n);
+    uint8_t i = 0;
+    for (i = 0; i < 8; i++)
+    {
+        mpz_init(data->v[i]);
+        mpz_powm(data->v[i], data->s[i], data->_m_two_mpz, data->n);
+    }
 }
 
 void fsh_data_calc_x(struct fsh_data_t *data)
