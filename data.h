@@ -5,7 +5,7 @@
 
 struct fsh_data_t {
     mpz_t p, q, r;
-    mpz_t n, x, y;
+    mpz_t n, u, y;
 
     mpz_t _two_mpz;
     mpz_t _m_two_mpz;
@@ -76,10 +76,10 @@ void fsh_data_calc_v(struct fsh_data_t *data)
     }
 }
 
-void fsh_data_calc_x(struct fsh_data_t *data)
+void fsh_data_calc_u(struct fsh_data_t *data)
 {
-    mpz_init(data->x);
-    mpz_powm(data->x, data->r, data->_two_mpz, data->n);
+    mpz_init(data->u);
+    mpz_powm(data->u, data->r, data->_two_mpz, data->n);
 }
 
 void fsh_data_calc_y(struct fsh_data_t *data, int e)
@@ -109,7 +109,7 @@ void fsh_data_check_right_side(mpz_ptr right_side, struct fsh_data_t *data, int 
     mpz_init(ve);
     mpz_init(xve);
     mpz_pow_ui(ve, data->v, e);
-    mpz_mul(xve, data->x, ve);
+    //mpz_mul(xve, data->x, ve);
     mpz_mod(right_side, xve, data->n);
 }
 #endif // DATA_H
