@@ -3,7 +3,8 @@
 
 #include <gmp.h>
 
-#define HASH_SIZE 8
+#define HASH_SIZE 160
+#define HASH_MASK 1
 
 struct fsh_data_t {
     mpz_t p, q, r;
@@ -40,14 +41,16 @@ void fsh_data_calc_n(struct fsh_data_t *data)
 void fsh_data_select_s_array(struct fsh_data_t *data, mpz_ptr n, gmp_randstate_t randstate)
 {
     uint8_t i=0;
+    mpz_t mpz_1000;
+    mpz_init_set_ui(mpz_1000, 1000);
 
-    for (i = 0; i < 8; i++)
+    for (i = 0; i < HASH_SIZE; i++)
     {
         mpz_init(data->sj[i]);
 
         do
         {
-            mpz_urandomm(data->sj[i], randstate, n);
+            mpz_urandomm(data->sj[i], randstate, mpz_1000);
             mpz_nextprime(data->sj[i], data->sj[i]);
         }
         while(mpz_cmp(data->n, data->sj[i]) < 1);
@@ -116,5 +119,7 @@ void fsh_calc_w(mpz_t *w, struct fsh_data_t data)
     }
     mpz_mod(w, w, data.n);
 }
+
+
 
 #endif // DATA_H

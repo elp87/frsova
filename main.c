@@ -6,6 +6,24 @@
 #include <string.h>
 #include <LibSha1.h>
 
+void sha1_to_bitarray(unsigned int *e[], SHA1_HASH hash)
+{
+    int byte_counter;
+    int bit_counter;
+    int hash_counter = 0;
+    uint8_t byte;
+    for (byte_counter = 0; byte_counter < 20; byte_counter++)
+    {
+        byte = hash.bytes[byte_counter];
+        for (bit_counter = 0; bit_counter < 8; bit_counter++)
+        {
+            e[hash_counter] = (byte & (HASH_MASK << bit_counter)) != 0;
+            hash_counter++;
+        }
+    }
+}
+//----------------------------------------------
+
 int main(void)
 {    
     char message[1024];
@@ -93,13 +111,8 @@ int main(void)
     printf("\n");
 
     // SHA1 -> {0, 1}
-    uint8_t byte = hash.bytes[0];
+    sha1_to_bitarray(&data.e, hash);
 
-    unsigned char mask = 1; // Битовая маска
-    for (i = 0; i < HASH_SIZE; i++)
-    {
-        data.e[i] = (byte & (mask << i)) != 0;
-    }
 
     // Считаем s
     fsh_data_calc_s(&data);
@@ -136,13 +149,8 @@ int main(void)
     printf("\n");
 
     // SHA1 -> {0, 1}
-    uint8_t bobyte = bob_hash.bytes[0];
-
     unsigned int e[HASH_SIZE];
-    for (i = 0; i < HASH_SIZE; i++)
-    {
-        e[i] = (byte & (mask << i)) != 0;
-    }
+    sha1_to_bitarray(&e, bob_hash);
 
     if(memcmp(&data.e, &e, HASH_SIZE) == 0)
     {
