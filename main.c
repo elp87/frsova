@@ -3,40 +3,15 @@
 #include <stdint.h>
 #include <time.h>
 #include <data.h>
+#include <string.h>
 #include <LibSha1.h>
-
 
 int main(void)
 {    
-    char string[80];
-    Sha1Context context;
-    SHA1_HASH hash;
-    uint16_t i;
-    unsigned int bits[8];
-    uint8_t byte;
-
+    char message[1024];
     printf("Введите сообщение: ");
-    scanf("%s", string);
+    scanf("%s", message);
 
-    // Хэшируем
-    Sha1Initialise(&context);
-    Sha1Update(&context, string, (uint32_t)strlen(string) );
-    Sha1Finalise(&context, &hash);
-
-    // Выводим результат хэш-функции
-    for( i=0; i<sizeof(hash); i++ )
-    {
-        printf( "%2.2x ", hash.bytes[i] );
-    }
-    printf("\n");
-
-    byte = hash.bytes[0];
-
-    unsigned char mask = 1; // Битовая маска
-    for (i = 0; i < 8; i++)
-    {
-        bits[i] = (byte & (mask << i)) != 0;
-    }
 
     struct fsh_data_t data;
 
@@ -78,7 +53,7 @@ int main(void)
     gmp_printf("n = %Zd\n\n", data.n);
 
     // Выбираем случайные s
-    fsh_data_calc_s(&data, data.n, randstate);
+    fsh_data_select_s_array(&data, data.n, randstate);
 
     // Вычисляем vj = sj^(-2) mod n
     fsh_data_calc_v(&data);
@@ -92,5 +67,90 @@ int main(void)
     fsh_data_calc_u(&data);
     gmp_printf("u = %Zd\n", data.u);
 
+    // Конвертируем data.u из mpz_t в char
+    char * u_ch = mpz_get_str(NULL, 10, data.u);
+
+    // Добавляем u в конец сообщения
+    char ann_mod_message[1024];
+    strcpy(ann_mod_message, message);
+    strcat(ann_mod_message, u_ch);
+    printf("Модифицированное сообщение - %s\n", ann_mod_message);
+
+    // Хэшируем SHA1
+    Sha1Context hash_context;
+    SHA1_HASH hash;
+    uint16_t i;
+
+    Sha1Initialise(&hash_context);
+    Sha1Update(&hash_context, ann_mod_message, (uint32_t)strlen(ann_mod_message));
+    Sha1Finalise(&hash_context, &hash);
+
+    printf("hash: ");
+    for( i=0; i<sizeof(hash); i++ )
+    {
+        printf( "%2.2x ", hash.bytes[i] );
+    }
+    printf("\n");
+
+    // SHA1 -> {0, 1}
+    uint8_t byte = hash.bytes[0];
+
+    unsigned char mask = 1; // Битовая маска
+    for (i = 0; i < 8; i++)
+    {
+        data.e[i] = (byte & (mask << i)) != 0;
+    }
+
+    // Считаем s
+    fsh_data_calc_s(&data);
+    gmp_printf("s = %Zd\n", data.s);
+
+    ///////////////// Verification ////////////////
+    mpz_t w;
+    mpz_init(w);
+    fsh_calc_w(&w, data);
+    gmp_printf("w = %Zd\n", w);
+
+    // Конвертируем data.u из mpz_t в char
+    char * w_ch = mpz_get_str(NULL, 10, w);
+
+    // Добавляем u в конец сообщения
+    char bob_mod_message[1024];
+    strcpy(bob_mod_message, message);
+    strcat(bob_mod_message, w_ch);
+    printf("Модифицированное сообщение - %s\n", bob_mod_message);
+
+    // Хэшируем SHA1
+    Sha1Context bob_hash_context;
+    SHA1_HASH bob_hash;
+
+    Sha1Initialise(&bob_hash_context);
+    Sha1Update(&bob_hash_context, bob_mod_message, (uint32_t)strlen(bob_mod_message));
+    Sha1Finalise(&bob_hash_context, &bob_hash);
+
+    printf("hash: ");
+    for( i=0; i<sizeof(hash); i++ )
+    {
+        printf( "%2.2x ", bob_hash.bytes[i] );
+    }
+    printf("\n");
+
+    // SHA1 -> {0, 1}
+    uint8_t bobyte = bob_hash.bytes[0];
+
+    unsigned int e[8];
+    for (i = 0; i < 8; i++)
+    {
+        e[i] = (byte & (mask << i)) != 0;
+    }
+
+    if(memcmp(&data.e, &e, 8) == 0)
+    {
+        printf("Успешно\n");
+    }
+    else
+    {
+        printf("Ошибка");
+    }
     return 1;
 }
