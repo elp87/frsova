@@ -96,7 +96,7 @@ int main(void)
     uint8_t byte = hash.bytes[0];
 
     unsigned char mask = 1; // Битовая маска
-    for (i = 0; i < 8; i++)
+    for (i = 0; i < HASH_SIZE; i++)
     {
         data.e[i] = (byte & (mask << i)) != 0;
     }
@@ -138,13 +138,13 @@ int main(void)
     // SHA1 -> {0, 1}
     uint8_t bobyte = bob_hash.bytes[0];
 
-    unsigned int e[8];
-    for (i = 0; i < 8; i++)
+    unsigned int e[HASH_SIZE];
+    for (i = 0; i < HASH_SIZE; i++)
     {
         e[i] = (byte & (mask << i)) != 0;
     }
 
-    if(memcmp(&data.e, &e, 8) == 0)
+    if(memcmp(&data.e, &e, HASH_SIZE) == 0)
     {
         printf("Успешно\n");
     }

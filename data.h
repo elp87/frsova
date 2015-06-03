@@ -3,6 +3,8 @@
 
 #include <gmp.h>
 
+#define HASH_SIZE 8
+
 struct fsh_data_t {
     mpz_t p, q, r;
     mpz_t n, u, y;
@@ -11,10 +13,10 @@ struct fsh_data_t {
     mpz_t _two_mpz;
     mpz_t _m_two_mpz;
 
-    mpz_t sj[8];
-    mpz_t v[8];
+    mpz_t sj[HASH_SIZE];
+    mpz_t v[HASH_SIZE];
 
-    unsigned int e[8];
+    unsigned int e[HASH_SIZE];
 };
 
 void fsh_data_init(struct fsh_data_t *data,
@@ -72,7 +74,7 @@ void fsh_data_init_r(struct fsh_data_t *data, mpz_ptr r)
 void fsh_data_calc_v(struct fsh_data_t *data)
 {
     uint8_t i = 0;
-    for (i = 0; i < 8; i++)
+    for (i = 0; i < HASH_SIZE; i++)
     {
         mpz_init(data->v[i]);
         mpz_powm(data->v[i], data->sj[i], data->_m_two_mpz, data->n);
@@ -91,7 +93,7 @@ void fsh_data_calc_s(struct fsh_data_t *data)
     int i = 0;
     mpz_t temp;
     mpz_init(temp);
-    for (i = 0;i < 8; i++)
+    for (i = 0;i < HASH_SIZE; i++)
     {
         mpz_pow_ui(temp, data->sj[i], data->e[i]); // sj^ej
         mpz_mul(data->s, data->s, temp); // s *= sj^ej
@@ -107,7 +109,7 @@ void fsh_calc_w(mpz_t *w, struct fsh_data_t data)
     int i;
     mpz_t temp;
     mpz_init(temp);
-    for (i = 0; i < 8; i++)
+    for (i = 0; i < HASH_SIZE; i++)
     {
         mpz_pow_ui(temp, data.v[i], data.e[i]);
         mpz_mul(w, w, temp);
