@@ -22,6 +22,16 @@ void sha1_to_bitarray(unsigned int *e[], SHA1_HASH hash)
         }
     }
 }
+
+void get_hash(SHA1_HASH *hash, char message[])
+{
+    Sha1Context hash_context;
+
+    Sha1Initialise(&hash_context);
+    Sha1Update(&hash_context, message, (uint32_t)strlen(message));
+    Sha1Finalise(&hash_context, hash);
+}
+
 //----------------------------------------------
 
 int main(void)
@@ -95,13 +105,9 @@ int main(void)
     printf("Модифицированное сообщение - %s\n", ann_mod_message);
 
     // Хэшируем SHA1
-    Sha1Context hash_context;
     SHA1_HASH hash;
     uint16_t i;
-
-    Sha1Initialise(&hash_context);
-    Sha1Update(&hash_context, ann_mod_message, (uint32_t)strlen(ann_mod_message));
-    Sha1Finalise(&hash_context, &hash);
+    get_hash(&hash, ann_mod_message);
 
     printf("hash: ");
     for( i=0; i<sizeof(hash); i++ )
@@ -134,12 +140,8 @@ int main(void)
     printf("Модифицированное сообщение - %s\n", bob_mod_message);
 
     // Хэшируем SHA1
-    Sha1Context bob_hash_context;
     SHA1_HASH bob_hash;
-
-    Sha1Initialise(&bob_hash_context);
-    Sha1Update(&bob_hash_context, bob_mod_message, (uint32_t)strlen(bob_mod_message));
-    Sha1Finalise(&bob_hash_context, &bob_hash);
+    get_hash(&bob_hash, bob_mod_message);
 
     printf("hash: ");
     for( i=0; i<sizeof(hash); i++ )
