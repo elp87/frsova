@@ -53,7 +53,7 @@ void fsh_data_select_s_array(struct fsh_data_t *data, mpz_ptr n, gmp_randstate_t
             mpz_urandomm(data->sj[i], randstate, mpz_1000);
             mpz_nextprime(data->sj[i], data->sj[i]);
         }
-        while(mpz_cmp(data->n, data->sj[i]) < 1);
+        while(mpz_cmp(n, data->sj[i]) < 1);
     }
 }
 
@@ -107,7 +107,7 @@ void fsh_data_calc_s(struct fsh_data_t *data)
 //-------- Bob
 void fsh_calc_w(mpz_t *w, struct fsh_data_t data)
 {
-    mpz_pow_ui(w, data.s, 2);
+    mpz_pow_ui(*w, data.s, 2);
 
     int i;
     mpz_t temp;
@@ -115,9 +115,9 @@ void fsh_calc_w(mpz_t *w, struct fsh_data_t data)
     for (i = 0; i < HASH_SIZE; i++)
     {
         mpz_pow_ui(temp, data.v[i], data.e[i]);
-        mpz_mul(w, w, temp);
+        mpz_mul(*w, *w, temp);
     }
-    mpz_mod(w, w, data.n);
+    mpz_mod(*w, *w, data.n);
 }
 
 

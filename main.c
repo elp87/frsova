@@ -17,7 +17,7 @@ void sha1_to_bitarray(unsigned int *e[], SHA1_HASH hash)
         byte = hash.bytes[byte_counter];
         for (bit_counter = 0; bit_counter < 8; bit_counter++)
         {
-            e[hash_counter] = (byte & (HASH_MASK << bit_counter)) != 0;
+            e[hash_counter] = (unsigned int*)((byte & (HASH_MASK << bit_counter)) != 0);
             hash_counter++;
         }
     }
@@ -39,7 +39,6 @@ int main(void)
     char message[1024];
     printf("Введите сообщение: ");
     scanf("%s", message);
-
 
     struct fsh_data_t data;
 
@@ -115,6 +114,7 @@ int main(void)
         printf( "%2.2x ", hash.bytes[i] );
     }
     printf("\n");
+
 
     // SHA1 -> {0, 1}
     sha1_to_bitarray(&data.e, hash);
